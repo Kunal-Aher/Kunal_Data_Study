@@ -1,0 +1,175 @@
+** Sql_Practice_Questions and Imp Topic Notes
+Exercise 3 — Tasks
+Find all the Toy Story movies ✓
+Find all the movies directed by John Lasseter ✓
+Find all the movies (and director) not directed by John Lasseter ✓
+Find all the WALL-* movies 
+
+
+-- SELECT * FROM movies where title like 'toy%';
+-- select title,director from movies where director like 'john Lasseter'
+-- select title,director from movies where director not like'john Lasseter'
+-- select * from movies where title like 'Wall%'
+
+
+
+
+Exercise 4 — Tasks
+List all directors of Pixar movies (alphabetically), without duplicates ✓
+List the last four Pixar movies released (ordered from most recent to least) ✓
+List the first five Pixar movies sorted alphabetically ✓
+List the next five Pixar movies sorted alphabetically 
+
+SELECT distinct(director) FROM movies order by director Asc ;
+SELECT title,year FROM movies order by year Desc limit 4 ;
+select title from movies order by title limit 5;
+select title from movies order by title  limit 5 offset 5;
+
+
+Review 1 — Tasks
+List all the Canadian cities and their populations ✓
+Order all the cities in the United States by their latitude from north to south ✓
+List all the cities west of Chicago, ordered from west to east ✓
+List the two largest cities in Mexico (by population) ✓
+List the third and fourth largest cities (by population) in the United States and their population ✓ 
+
+SELECT city,population FROM north_american_cities where Country="Canada";
+select * from north_american_cities;
+select City,latitude,longitude from north_american_cities where Country="United States" order by latitude,longitude;
+SELECT city, longitude FROM north_american_citiesWHERE longitude < -87.629798 ORDER BY longitude ASC;
+SELECT city, population FROM north_american_cities WHERE country LIKE "United States" ORDER BY population DESC LIMIT 2 OFFSET 2;
+
+
+Exercise 6 — Tasks
+Find the domestic and international sales for each movie ✓
+Show the sales numbers for each movie that did better internationally rather than domestically ✓
+List all the movies by their ratings in descending order ✓
+
+
+SELECT 	M.title,B.domestic_sales,B.international_sales FROM movies M join boxoffice B on M.id=B.movie_id ;
+SELECT M.title,B.domestic_sales ,B.international_sales FROM movies M join boxoffice B on M.id=B.movie_id where B.domestic_sales < B.international_sales order by international_sales Desc ;
+select m.title,b.rating from Movies m join Boxoffice b on m.id=b.Movie_id order by rating desc;
+
+
+Exercise 7 — Tasks
+Find the list of all buildings that have employees ✓
+Find the list of all buildings and their capacity ✓
+List all buildings and the distinct employee roles in each building (including empty buildings) ✓
+
+
+SELECT DISTINCT building FROM employees;
+SELECT building_name,capacity FROM buildings;
+SELECT DISTINCT building_name, role 
+FROM buildings 
+  LEFT JOIN employees
+    ON building_name = building;
+
+Exercise 8 — Tasks
+Find the name and role of all employees who have not been assigned to a building ✓
+Find the names of the buildings that hold no employees ✓
+
+
+SELECT role,name,building FROM employees where building is null;
+SELECT DISTINCT building_name FROM buildings left join employees on building_name=building where role is null;
+
+
+Exercise 9 — Tasks
+List all movies and their combined sales in millions of dollars ✓
+List all movies and their ratings in percent ✓
+List all movies that were released on even number years 
+
+SELECT title,(domestic_sales + international_sales) / 1000000  as combined sales FROM movies join boxoffice on id=movie_id;
+SELECT m.title, (b.rating * 10) as rating_in_percet FROM movies m join boxoffice b on m.id=b.movie_id;
+select title,year as even_year from movies where year%2 =0;
+
+
+Exercise 10 — Tasks
+Find the longest time that an employee has been at the studio ✓
+For each role, find the average number of years employed by employees in that role ✓
+Find the total number of employee years worked in each building ✓
+
+SELECT max(years_employed) FROM employees;
+SELECT Role,avg(years_employed) as avg_exp FROM employees group by role ;
+select sum(years_employed) as Total_years_employed ,building from employees group by building;
+
+
+Exercise 11 — Tasks
+Find the number of Artists in the studio (without a HAVING clause) ✓
+Find the number of Employees of each role in the studio ✓
+Find the total number of years employed by all Engineers
+
+SELECT count(role) as number_of_Artists FROM employees where role="Artist";
+SELECT role, COUNT(*)
+FROM employees
+GROUP BY role;
+
+SELECT role, SUM(years_employed)
+FROM employees
+GROUP BY role
+HAVING role = "Engineer";
+
+
+_____________________________________________________________________________________________________________
+Query order of execution
+1. FROM and JOINs
+The FROM clause, and subsequent JOINs are first executed to determine the total working set of data that is being queried. This includes subqueries in this clause, and can cause temporary tables to be created under the hood containing all the columns and rows of the tables being joined.
+
+2. WHERE
+Once we have the total working set of data, the first-pass WHERE constraints are applied to the individual rows, and rows that do not satisfy the constraint are discarded. Each of the constraints can only access columns directly from the tables requested in the FROM clause. Aliases in the SELECT part of the query are not accessible in most databases since they may include expressions dependent on parts of the query that have not yet executed.
+
+3. GROUP BY
+The remaining rows after the WHERE constraints are applied are then grouped based on common values in the column specified in the GROUP BY clause. As a result of the grouping, there will only be as many rows as there are unique values in that column. Implicitly, this means that you should only need to use this when you have aggregate functions in your query.
+
+4. HAVING
+If the query has a GROUP BY clause, then the constraints in the HAVING clause are then applied to the grouped rows, discard the grouped rows that don't satisfy the constraint. Like the WHERE clause, aliases are also not accessible from this step in most databases.
+
+5. SELECT
+Any expressions in the SELECT part of the query are finally computed.
+
+6. DISTINCT
+Of the remaining rows, rows with duplicate values in the column marked as DISTINCT will be discarded.
+
+7. ORDER BY
+If an order is specified by the ORDER BY clause, the rows are then sorted by the specified data in either ascending or descending order. Since all the expressions in the SELECT part of the query have been computed, you can reference aliases in this clause.
+
+8. LIMIT / OFFSET
+Finally, the rows that fall outside the range specified by the LIMIT and OFFSET are discarded, leaving the final set of rows to be returned from the query.
+________________________________________________________________________________________________________________________
+
+Exercise 12 — Tasks
+Find the number of movies each director has directed ✓
+Find the total domestic and international sales that can be attributed to each director ✓
+
+SELECT director,count(title) as number_of_movies FROM movies group by director;
+select director,sum(domesti_sales + international_sales) as Cumulative_sales form movies inner join boxoffice on id=movie_id group by director;
+
+
+Exercise 13 — Tasks
+Add the studio's new production, Toy Story 4 to the list of movies (you can use any director) ✓
+Toy Story 4 has been released to critical acclaim! It had a rating of 8.7, and made 340 million domestically and 270 million internationally. Add the record to the BoxOffice table. ✓
+
+INSERT INTO movies VALUES(4,"Toy Story 4","kk",2015,120)
+INSERT INTO boxoffice VALUES (4, 8.7, 340000000, 270000000);
+
+
+Exercise 14 — Tasks
+The director for A Bug's Life is incorrect, it was actually directed by John Lasseter
+The year that Toy Story 2 was released is incorrect, it was actually released in 1999
+Both the title and director for Toy Story 8 is incorrect! The title should be "Toy Story 3" and it was directed by Lee Unkrich
+
+
+update movies set Director="John Lasseter" where title="A Bug's Life"
+update movies set year=1999 where title="Toy Story 2"
+update movies set title="Toy Story 3",director="Lee Unkrich" where title="Toy Story 8"
+
+
+
+
+
+Exercise 15 — Tasks
+This database is getting too big, lets remove all movies that were released before 2005. ✓
+Andrew Stanton has also left the studio, so please remove all movies directed by him.
+
+
+delete from Movies where year < 2005
+delete from Movies where director = "Andrew Stanton"
