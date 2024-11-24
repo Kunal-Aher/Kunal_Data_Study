@@ -173,3 +173,145 @@ Andrew Stanton has also left the studio, so please remove all movies directed by
 
 delete from Movies where year < 2005
 delete from Movies where director = "Andrew Stanton"
+
+
+
+
+_________________________________________________________________________________________________________________________________________________________
+Data type				Description
+INTEGER, BOOLEAN			The integer datatypes can store whole integer values like the count of a number or an age. In some implementations, the boolean value is just 						represented as an integer value of just 0 or 1.
+FLOAT, DOUBLE, REAL			The floating point datatypes can store more precise numerical data like measurements or fractional values. Different types can be used depending 					on the floating point precision required for that value.
+CHARACTER(num_chars), 
+VARCHAR(num_chars), TEXT	
+					The text based datatypes can store strings and text in all sorts of locales. The distinction between the various types generally amount to 						underlaying efficiency of the database when working with these columns.
+
+					Both the CHARACTER and VARCHAR (variable character) types are specified with the max number of characters that they can store (longer values may 					be truncated), so can be more efficient to store and query with big tables.
+
+DATE, DATETIME				SQL can also store date and time stamps to keep track of time series and event data. They can be tricky to work with especially when manipulating 					data across timezones.
+BLOB					Finally, SQL can store binary data in blobs right in the database. These values are often opaque to the database, so you usually have to store 						them with the right metadata to requery them.
+____________________________________________________________________________________________________________________________________________________________________
+
+Exercise 16 — Tasks
+Create a new table named Database with the following columns:
+– Name A string (text) describing the name of the database
+– Version A number (floating point) of the latest version of this database
+– Download_count An integer count of the number of times this database was downloaded
+
+This table has no constraints. 
+
+create table Database(
+Name Text,
+versrion float,
+Download_count int
+
+);
+
+
+
+Exercise 17 — Tasks
+Add a column named Aspect_ratio with a FLOAT data type to store the aspect-ratio each movie was released in. ✓
+Add another column named Language with a TEXT data type to store the language that the movie was released in. Ensure that the default for this language is English.
+
+
+Alter table movies add column Aspect_ratio Float;
+Alter table movies add column Language TEXT DEFAULT "English";
+
+
+
+
+Drop table movies;
+DROP TABLE IF EXISTS boxoffice;(other way to drop)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hakerrank Question and ans:
+
+
+Query the list of CITY names starting with vowels (i.e., a, e, i, o, or u) from STATION. Your result cannot contain duplicates.
+
+select Distinct(city) from station where city regexp'^[aeiou]'
+
+or
+
+SELECT DISTINCT(city)
+FROM STATION
+WHERE LEFT(city, 1) IN ('A', 'E', 'I', 'O', 'U');
+or
+select Distinct city from station where city like 'a%' or  city like 'e%' or  city like 'i%' or  city like 'o%' or  city like 'u%' ;
+
+
+
+
+
+Query the list of CITY names from STATION which have vowels (i.e., a, e, i, o, and u) as both their first and last characters. Your result cannot contain duplicates.
+
+-- select Distinct city from station where city regexp '^[aeiou].*[aeiou]$';
+or
+select Distinct city from station where (city like 'a%' or city like 'e%' or city like 'i%' or city like 'o%' or city like 'u%') And (city like '%a' or  city like '%e' or  city like '%i' or  city like '%o' or  city like '%u');
+
+
+
+
+Query the list of CITY names from STATION that do not start with vowels. Your result cannot contain duplicates.
+select Distinct city from STATION where city not regexp '^[aeiou]';
+
+Query the list of CITY names from STATION that do not end with vowels. Your result cannot contain duplicates.
+select Distinct city from STATION where city not regexp '[aeiou]$'
+
+
+
+Query the list of CITY names from STATION that either do not start with vowels or do not end with vowels. Your result cannot contain duplicates.
+-- select Distinct city from STATION where city not regexp '^[aeiou]' or city not regexp '[aeiou]$'
+
+or
+-- SELECT DISTINCT CITY FROM STATION WHERE LEFT(CITY, 1) NOT IN ('A', 'E', 'I', 'O', 'U') OR RIGHT(CITY, 1) NOT IN ('a', 'e', 'i', 'o', 'u');
+or
+SELECT DISTINCT city FROM station WHERE city REGEXP '^[^AEIOU]|.*[^AEIOU]$';
+
+Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates.
+
+select distinct city from station where city regexp '^[^aeiou]' and  city regexp '[^aeiou]$';
+
+
+
+
+Query the Name of any student in STUDENTS who scored higher 75 than  Marks. Order your output by the last three characters of each name. If two or more students both have names ending in the same last three characters (i.e.: Bobby, Robby, etc.), secondary sort them by ascending ID.
+
+select Name from STUDENTS where Marks > 75 order by Right(Name,3) asc,id ASC;
+
+or 
+
+select Name from STUDENTS where Marks > 75 order by substr(Name,-3,3) asc,id ASC;
+
+
+
+
+Write a query that prints a list of employee names (i.e.: the name attribute) from the Employee table in alphabetical order.
+
+select Name from Employee order by name;
+
+
+
+Write a query that prints a list of employee names (i.e.: the name attribute) for employees in Employee having a salary greater than 2000 per month who have been employees for less than 10 months. Sort your result by ascending employee_id
+
+select Name from Employee where Salary > 2000 and months < 10  order by employee_id asc ;
+
+
+
+Query the following two values from the STATION table:
+
+The sum of all values in LAT_N rounded to a scale of  2 decimal places.
+The sum of all values in LONG_W rounded to a scale of  2 decimal places.
+
+select round(sum(LAT_N),2),round(sum(LONG_W),2) from STATION;
